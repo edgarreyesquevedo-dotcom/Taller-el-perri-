@@ -22,6 +22,9 @@ const { ejecutarNominaAutomaticaSabatina } = require('./services/contabilidad');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const isVercel = process.env.VERCEL === '1';
+const mongoServerSelectionTimeoutMS = Number(process.env.MONGODB_SERVER_SELECTION_TIMEOUT_MS || 10000);
+
+mongoose.set('bufferCommands', false);
 
 // Evita fallos de resolucion SRV de Atlas cuando el DNS local no responde bien.
 dns.setServers(['8.8.8.8', '1.1.1.1']);
@@ -37,17 +40,19 @@ if (process.env.NODE_ENV === 'production' && !process.env.SESSION_SECRET) {
 const globalState = global;
 
 function conectarMongo() {
-  if (mongoose.connection.readyState === 1) return Promise.resolve();
+  if (mongoose.connection.readyState === 1) return Promise.resolve(mongoose.connection.getClient());
 
   if (!globalState.tallerDbMongoPromise) {
     globalState.tallerDbMongoPromise = mongoose
-      .connect(process.env.MONGODB_URI)
+      .connect(process.env.MONGODB_URI, { serverSelectionTimeoutMS: mongoServerSelectionTimeoutMS })
       .then(async () => {
         console.log('MongoDB conectado');
         if (!globalState.tallerDbNominaEjecutada) {
           globalState.tallerDbNominaEjecutada = true;
           await ejecutarNominaAutomaticaSabatina();
         }
+
+        return mongoose.connection.getClient();
       })
       .catch(error => {
         globalState.tallerDbMongoPromise = null;
@@ -77,7 +82,7 @@ app.use(
     secret: process.env.SESSION_SECRET || 'cambia_esta_clave_en_produccion',
     resave: false,
     saveUninitialized: false,
-    store: MongoStore.create({ mongoUrl: process.env.MONGODB_URI }),
+    store: MongoStore.create({ clientPromise: conectarMongo() }),
     cookie: {
       httpOnly: true,
       sameSite: 'lax',
@@ -86,6 +91,15 @@ app.use(
     }
   })
 );
+
+app.use(async (req, res, next) => {
+  try {
+    await conectarMongo();
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
 
 app.use((req, res, next) => {
   res.locals.usuario = req.session.usuario || null;
