@@ -1,4 +1,5 @@
 const Refaccion = require('../models/Refaccion');
+const Servicio = require('../models/Servicio');
 const { obtenerResumenContable, registrarMovimiento } = require('./contabilidad');
 const { escaparRegex } = require('../utils/regex');
 
@@ -68,7 +69,12 @@ async function actualizar(id, body) {
   return Refaccion.findByIdAndUpdate(id, datos, { runValidators: true });
 }
 
-function eliminar(id) {
+async function eliminar(id) {
+  const ordenesAsociadas = await Servicio.countDocuments({ 'refacciones.refaccion': id });
+  if (ordenesAsociadas > 0) {
+    throw new Error('No se puede eliminar una refaccion usada en ordenes de servicio');
+  }
+
   return Refaccion.findByIdAndDelete(id);
 }
 

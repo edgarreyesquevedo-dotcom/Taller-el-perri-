@@ -16,6 +16,7 @@ const empleadosRoutes = require('./routes/empleados');
 const tiposServiciosRoutes = require('./routes/tiposServicios');
 const contabilidadRoutes = require('./routes/contabilidad');
 const requireAuth = require('./middleware/auth');
+const errorHandler = require('./middleware/errorHandler');
 const { ejecutarNominaAutomaticaSabatina } = require('./services/contabilidad');
 
 const app = express();
@@ -27,6 +28,10 @@ dns.setServers(['8.8.8.8', '1.1.1.1']);
 
 if (!process.env.MONGODB_URI) {
   throw new Error('Falta configurar MONGODB_URI en el entorno');
+}
+
+if (process.env.NODE_ENV === 'production' && !process.env.SESSION_SECRET) {
+  throw new Error('Falta configurar SESSION_SECRET en el entorno');
 }
 
 const globalState = global;
@@ -114,6 +119,8 @@ app.use('/contabilidad', requireAuth, contabilidadRoutes);
 app.use((req, res) => {
   res.status(404).render('error', { titulo: 'Pagina no encontrada', mensaje: 'La ruta solicitada no existe.' });
 });
+
+app.use(errorHandler);
 
 if (require.main === module) {
   app.listen(PORT, () => {

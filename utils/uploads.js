@@ -14,7 +14,8 @@ fs.mkdirSync(uploadDir, { recursive: true });
 fs.mkdirSync(empleadosUploadDir, { recursive: true });
 
 function crearUploadImagen(destination, cloudinaryFolder) {
-  const storage = hasCloudinaryConfig()
+  const cloudinaryConfigurado = hasCloudinaryConfig();
+  const storage = cloudinaryConfigurado
     ? new CloudinaryStorage({
       cloudinary,
       params: {
@@ -33,7 +34,18 @@ function crearUploadImagen(destination, cloudinaryFolder) {
   return multer({
     storage,
     fileFilter: (req, file, cb) => {
-      if (!file.mimetype.startsWith('image/')) return cb(new Error('Solo se permiten imagenes'));
+      if (isVercel && !cloudinaryConfigurado) {
+        const error = new Error('Configura Cloudinary para subir imagenes en Vercel');
+        error.status = 400;
+        return cb(error);
+      }
+
+      if (!file.mimetype.startsWith('image/')) {
+        const error = new Error('Solo se permiten imagenes');
+        error.status = 400;
+        return cb(error);
+      }
+
       return cb(null, true);
     },
     limits: { fileSize: 4 * 1024 * 1024 }

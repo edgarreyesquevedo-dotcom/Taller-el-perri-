@@ -59,8 +59,19 @@ async function actualizar(req, res) {
 }
 
 async function eliminar(req, res) {
-  await refaccionesService.eliminar(req.params.id);
-  res.redirect('/refacciones');
+  try {
+    await refaccionesService.eliminar(req.params.id);
+    res.redirect('/refacciones');
+  } catch (error) {
+    const { refacciones, filtros } = await refaccionesService.listar(req.query);
+    res.status(400).render('refacciones/index', {
+      titulo: 'Catalogo de refacciones',
+      refacciones,
+      filtros,
+      categorias: refaccionesService.categorias,
+      error: error.message
+    });
+  }
 }
 
 module.exports = { listar, mostrarNuevo, mostrarOrden, comprar, crear, mostrarEditar, actualizar, eliminar };

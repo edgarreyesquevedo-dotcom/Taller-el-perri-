@@ -18,6 +18,10 @@ async function seed() {
     throw new Error('Falta MONGODB_URI en el archivo .env');
   }
 
+  if (process.env.NODE_ENV === 'production' && process.env.ALLOW_DESTRUCTIVE_SEED !== 'true') {
+    throw new Error('Seed bloqueado en produccion. Define ALLOW_DESTRUCTIVE_SEED=true solo si quieres borrar y recrear los datos.');
+  }
+
   await mongoose.connect(process.env.MONGODB_URI);
 
   await Promise.all([

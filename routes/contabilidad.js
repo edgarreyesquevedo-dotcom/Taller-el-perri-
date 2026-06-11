@@ -1,12 +1,13 @@
 const express = require('express');
 const contabilidadController = require('../controllers/contabilidadController');
+const asyncHandler = require('../utils/asyncHandler');
 
 const router = express.Router();
 
-router.get('/', contabilidadController.mostrarDashboard);
-router.get('/reportes/nomina.pdf', contabilidadController.exportarNominaPdf);
-router.get('/reportes/egresos.pdf', contabilidadController.exportarEgresosPdf);
-router.get('/reportes/ingresos.pdf', contabilidadController.exportarIngresosPdf);
-router.post('/pagar-nomina', contabilidadController.pagarNomina);
+router.get('/', asyncHandler(contabilidadController.mostrarDashboard));
+router.get('/reportes/nomina.pdf', asyncHandler(contabilidadController.exportarNominaPdf));
+router.get('/reportes/egresos.pdf', asyncHandler(contabilidadController.exportarEgresosPdf));
+router.get('/reportes/ingresos.pdf', asyncHandler(contabilidadController.exportarIngresosPdf));
+router.post('/pagar-nomina', asyncHandler(contabilidadController.pagarNomina));
 
 module.exports = router;
