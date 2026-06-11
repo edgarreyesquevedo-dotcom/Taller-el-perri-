@@ -1,0 +1,17 @@
+services:
+  tallerdb:
+    build: .
+    container_name: tallerdb-app
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+    ports:
+      - "${HOST_PORT:-3000}:3000"
+    volumes:
+      - tallerdb_uploads:/app/public/uploads
+    restart: unless-stopped
+
+volumes:
+  tallerdb_uploads:

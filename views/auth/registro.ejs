@@ -1,0 +1,24 @@
+<section class="auth-card">
+  <div>
+    <p class="eyebrow">Nuevo usuario</p>
+    <h1>Crear cuenta</h1>
+    <p>La contrasena se guarda hasheada con bcrypt antes de llegar a MongoDB.</p>
+  </div>
+
+  <form method="post" action="/registro" class="form">
+    <label>
+      Nombre
+      <input type="text" name="nombre" required>
+    </label>
+    <label>
+      Email
+      <input type="email" name="email" required>
+    </label>
+    <label>
+      Contrasena
+      <input type="password" name="password" minlength="6" required>
+    </label>
+    <button type="submit">Crear cuenta</button>
+    <p class="muted">Ya tienes cuenta? <a href="/login">Iniciar sesion</a></p>
+  </form>
+</section>

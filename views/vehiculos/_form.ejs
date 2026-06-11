@@ -1,0 +1,44 @@
+<form method="post" action="<%= accion %>" class="card form grid-form" enctype="multipart/form-data">
+  <label>
+    Placa
+    <input type="text" name="placa" value="<%= vehiculo.placa || '' %>" placeholder="ABC-123" required>
+  </label>
+  <label>
+    Marca
+    <input type="text" name="marca" value="<%= vehiculo.marca || '' %>" required>
+  </label>
+  <label>
+    Modelo
+    <input type="text" name="modelo" value="<%= vehiculo.modelo || '' %>" required>
+  </label>
+  <label>
+    Anio
+    <input type="number" name="anio" value="<%= vehiculo.anio || '' %>" min="1900" max="<%= new Date().getFullYear() %>" required>
+  </label>
+  <label>
+    Propietario
+    <input type="text" name="propietario" value="<%= vehiculo.propietario || '' %>" required>
+  </label>
+  <label>
+    Telefono
+    <input type="tel" name="telefono" value="<%= vehiculo.telefono || '' %>" pattern="672-\d{3}-\d{4}" placeholder="672-123-4567" required>
+  </label>
+  <label class="span-2">
+    Imagenes de ingreso del auto
+    <input type="file" name="imagenes" accept="image/*" multiple>
+    <small>Sube fotos para comprobar como llego el auto al taller.</small>
+  </label>
+  <% if (vehiculo.imagenes && vehiculo.imagenes.length > 0) { %>
+    <div class="vehicle-images span-2">
+      <% vehiculo.imagenes.forEach(imagen => { %>
+        <a href="<%= imagen %>" target="_blank" rel="noreferrer">
+          <img src="<%= imagen %>" alt="Imagen de ingreso del vehiculo">
+        </a>
+      <% }) %>
+    </div>
+  <% } %>
+  <div class="form-actions">
+    <a href="/vehiculos">Cancelar</a>
+    <button type="submit"><%= boton %></button>
+  </div>
+</form>

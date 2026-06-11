@@ -1,0 +1,65 @@
+<form method="post" action="<%= accion %>" class="card form grid-form">
+  <% if (empleado.empleadoId) { %>
+    <label>
+      ID empleado
+      <input type="text" value="<%= empleado.empleadoId %>" readonly>
+    </label>
+  <% } %>
+  <label>
+    Puesto
+    <select name="puesto" required>
+      <option value="">Selecciona un puesto</option>
+      <% puestos.forEach(puesto => { %>
+        <option value="<%= puesto %>" <%= empleado.puesto === puesto ? 'selected' : '' %>><%= puesto %></option>
+      <% }) %>
+    </select>
+  </label>
+  <label>
+    Nombre
+    <input type="text" name="nombre" value="<%= empleado.nombre || '' %>" required>
+  </label>
+  <label>
+    Apellido paterno
+    <input type="text" name="apellidoPaterno" value="<%= empleado.apellidoPaterno || '' %>" required>
+  </label>
+  <label>
+    Apellido materno
+    <input type="text" name="apellidoMaterno" value="<%= empleado.apellidoMaterno || '' %>" required>
+  </label>
+  <label>
+    Telefono
+    <input type="tel" name="telefono" value="<%= empleado.telefono || '' %>" pattern="672-\d{3}-\d{4}" placeholder="672-123-4567" required>
+  </label>
+  <label>
+    Email
+    <input type="email" name="email" value="<%= empleado.email || '' %>" required>
+  </label>
+  <label>
+    Nomina base
+    <input type="number" name="nominaBase" value="<%= empleado.nominaBase || '' %>" min="0" step="0.01" required>
+  </label>
+  <label>
+    Fecha de registro
+    <input type="date" value="<%= fechaInput(empleado.creadoEn) %>" readonly>
+  </label>
+  <label>
+    RFC
+    <input type="text" name="rfc" value="<%= empleado.rfc || '' %>" required>
+  </label>
+  <label>
+    CURP
+    <input type="text" name="curp" value="<%= empleado.curp || '' %>" required>
+  </label>
+  <label>
+    Fecha de nacimiento
+    <input type="date" name="fechaNacimiento" value="<%= empleado.fechaNacimiento ? fechaInput(empleado.fechaNacimiento) : '' %>" required>
+  </label>
+  <label class="check-line span-2">
+    <input type="checkbox" name="activo" <%= empleado.activo === false ? '' : 'checked' %>>
+    Empleado activo
+  </label>
+  <div class="form-actions span-2">
+    <a href="/empleados">Cancelar</a>
+    <button type="submit"><%= boton %></button>
+  </div>
+</form>

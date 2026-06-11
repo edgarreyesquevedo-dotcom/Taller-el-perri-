@@ -1,0 +1,31 @@
+<form method="post" action="<%= accion %>" class="card form grid-form">
+  <label>
+    Nombre
+    <input type="text" name="nombre" value="<%= refaccion.nombre || '' %>" placeholder="Filtro de aceite" required>
+  </label>
+  <label>
+    Numero de pieza
+    <input type="text" name="numeroPieza" value="<%= refaccion.numeroPieza || '' %>" placeholder="FLT-001" required>
+  </label>
+  <label>
+    Categoria
+    <select name="categoria" required>
+      <option value="">Selecciona una categoria</option>
+      <% categorias.forEach(categoria => { %>
+        <option value="<%= categoria %>" <%= (refaccion.categoria || 'Otros') === categoria ? 'selected' : '' %>><%= categoria %></option>
+      <% }) %>
+    </select>
+  </label>
+  <label>
+    Precio
+    <input type="number" name="precio" value="<%= refaccion.precio || '' %>" min="0" step="0.01" required>
+  </label>
+  <label>
+    Stock
+    <input type="number" name="stock" value="<%= refaccion.stock ?? 0 %>" min="0" required>
+  </label>
+  <div class="form-actions span-2">
+    <a href="/refacciones">Cancelar</a>
+    <button type="submit"><%= boton %></button>
+  </div>
+</form>

@@ -1,0 +1,62 @@
+<section class="page-title">
+  <div>
+    <p class="eyebrow">Servicios mecanicos</p>
+    <h1>Catalogo de servicios</h1>
+  </div>
+  <a class="button" href="/catalogo-servicios/nuevo">Nuevo servicio</a>
+</section>
+
+<section class="stats-grid">
+  <article class="metric-card">
+    <span>Activos</span>
+    <strong><%= tiposServicios.filter(item => item.activo).length %></strong>
+  </article>
+  <article class="metric-card">
+    <span>Inactivos</span>
+    <strong><%= tiposServicios.filter(item => !item.activo).length %></strong>
+  </article>
+  <article class="metric-card">
+    <span>Total catalogo</span>
+    <strong><%= tiposServicios.length %></strong>
+  </article>
+</section>
+
+<section class="card table-card">
+  <% if (tiposServicios.length === 0) { %>
+    <p class="muted padded">Todavia no hay servicios cargados.</p>
+  <% } else { %>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Servicio</th>
+            <th>Descripcion</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% tiposServicios.forEach(tipoServicio => { %>
+            <tr class="<%= tipoServicio.activo ? '' : 'inactive-row' %>">
+              <td><strong><%= tipoServicio.nombre %></strong></td>
+              <td><%= tipoServicio.descripcion %></td>
+              <td><span class="status <%= tipoServicio.activo ? '' : 'status-off' %>"><%= tipoServicio.activo ? 'Activo' : 'Inactivo' %></span></td>
+              <td class="actions">
+                <a href="/catalogo-servicios/<%= tipoServicio._id %>/editar">Editar</a>
+                <% if (tipoServicio.activo) { %>
+                  <form method="post" action="/catalogo-servicios/<%= tipoServicio._id %>/desactivar" class="form-eliminar">
+                    <button class="danger" type="submit">Desactivar</button>
+                  </form>
+                <% } else { %>
+                  <form method="post" action="/catalogo-servicios/<%= tipoServicio._id %>/reactivar">
+                    <button type="submit" class="ghost-button">Reactivar</button>
+                  </form>
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>

@@ -1,0 +1,70 @@
+<section class="page-title">
+  <div>
+    <p class="eyebrow">Administracion de personal</p>
+    <h1>Empleados</h1>
+  </div>
+  <a class="button" href="/empleados/nuevo">Nuevo empleado</a>
+</section>
+
+<section class="stats-grid">
+  <article class="metric-card">
+    <span>Activos</span>
+    <strong><%= empleados.filter(item => item.activo).length %></strong>
+  </article>
+  <article class="metric-card">
+    <span>Mecanicos</span>
+    <strong><%= empleados.filter(item => item.puesto === 'Mecanico').length %></strong>
+  </article>
+  <article class="metric-card">
+    <span>Servicio cliente</span>
+    <strong><%= empleados.filter(item => item.puesto === 'Servicio al cliente').length %></strong>
+  </article>
+</section>
+
+<section class="card table-card">
+  <% if (empleados.length === 0) { %>
+    <p class="muted padded">Todavia no hay empleados cargados.</p>
+  <% } else { %>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Puesto</th>
+            <th>Contacto</th>
+            <th>Nomina</th>
+            <th>Antiguedad</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% empleados.forEach(empleado => { %>
+            <tr class="<%= empleado.activo ? '' : 'inactive-row' %>">
+              <td><strong><%= empleado.empleadoId %></strong></td>
+              <td><%= empleado.nombreCompleto %><br><small>RFC: <%= empleado.rfc %> · CURP: <%= empleado.curp %></small></td>
+              <td><%= empleado.puesto %></td>
+              <td><%= empleado.telefono %><br><small><%= empleado.email %></small></td>
+              <td>$<%= formatoMoneda(empleado.nominaBase) %></td>
+              <td><%= empleado.antiguedad %> anos</td>
+              <td><span class="status <%= empleado.activo ? '' : 'status-off' %>"><%= empleado.activo ? 'Activo' : 'Inactivo' %></span></td>
+              <td class="actions">
+                <a href="/empleados/<%= empleado._id %>/editar">Editar</a>
+                <% if (empleado.activo) { %>
+                  <form method="post" action="/empleados/<%= empleado._id %>/baja" class="form-eliminar">
+                    <button class="danger" type="submit">Baja logica</button>
+                  </form>
+                <% } else { %>
+                  <form method="post" action="/empleados/<%= empleado._id %>/reactivar">
+                    <button type="submit" class="ghost-button">Reactivar</button>
+                  </form>
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>

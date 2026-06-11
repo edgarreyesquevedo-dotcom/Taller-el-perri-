@@ -1,0 +1,80 @@
+<section class="page-title">
+  <div>
+    <p class="eyebrow">Finanzas del taller</p>
+    <h1>Contabilidad</h1>
+  </div>
+  <div class="actions-row">
+    <a class="button" href="/contabilidad/reportes/nomina.pdf">PDF nomina</a>
+    <a class="button" href="/contabilidad/reportes/egresos.pdf">PDF egresos</a>
+    <a class="button" href="/contabilidad/reportes/ingresos.pdf">PDF ingresos</a>
+    <a class="button" href="/refacciones/orden">Orden de refacciones</a>
+  </div>
+</section>
+
+<section class="stats-grid">
+  <article class="metric-card">
+    <span>Balance actual</span>
+    <strong>$<%= formatoMoneda(balance) %></strong>
+  </article>
+  <article class="metric-card">
+    <span>Ingresos</span>
+    <strong>$<%= formatoMoneda(ingresos) %></strong>
+  </article>
+  <article class="metric-card">
+    <span>Egresos</span>
+    <strong>$<%= formatoMoneda(egresos) %></strong>
+  </article>
+</section>
+
+<section class="card form payroll-card">
+  <div>
+    <p class="eyebrow">Nomina semanal</p>
+    <h2>Pago de empleados</h2>
+    <p class="muted">Semana vigente: <strong><%= fechaInput(periodoNominaActual.inicio) %> al <%= fechaInput(periodoNominaActual.fin) %></strong></p>
+    <p class="muted">Total semanal estimado: <strong>$<%= formatoMoneda(nominaSemanal) %></strong></p>
+    <% if (nominaPagada) { %>
+      <p class="muted">Nomina de la semana pagada: <strong><%= nominaPagada.modoNomina || 'Registrada' %></strong></p>
+    <% } %>
+  </div>
+  <% if (error) { %>
+    <p class="error"><%= error %></p>
+  <% } %>
+  <form method="post" action="/contabilidad/pagar-nomina" class="payroll-form">
+    <label>
+      Fecha de pago
+      <input type="date" name="fecha" value="<%= fechaInput(hoy) %>" min="<%= fechaInput(periodoNominaActual.inicio) %>" max="<%= fechaInput(periodoNominaActual.fin) %>" required <%= nominaPagada ? 'disabled' : '' %>>
+    </label>
+    <button type="submit" <%= nominaPagada ? 'disabled' : '' %>>Registrar pago semanal</button>
+  </form>
+</section>
+
+<section class="card table-card">
+  <% if (movimientos.length === 0) { %>
+    <p class="muted padded">Todavia no hay movimientos contables.</p>
+  <% } else { %>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Tipo</th>
+            <th>Categoria</th>
+            <th>Concepto</th>
+            <th>Monto</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% movimientos.forEach(movimiento => { %>
+            <tr>
+              <td><%= fechaInput(movimiento.fecha) %></td>
+              <td><span class="status <%= movimiento.tipo === 'Egreso' ? 'status-off' : '' %>"><%= movimiento.tipo %></span></td>
+              <td><%= movimiento.categoria %></td>
+              <td><%= movimiento.concepto %></td>
+              <td>$<%= formatoMoneda(movimiento.monto) %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>

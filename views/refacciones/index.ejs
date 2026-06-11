@@ -1,0 +1,109 @@
+<section class="page-title">
+  <div>
+    <p class="eyebrow">Adquisicion y almacen</p>
+    <h1>Catalogo de refacciones</h1>
+  </div>
+  <div class="actions">
+    <a class="button" href="/refacciones/orden">Orden de refacciones</a>
+    <a class="button" href="/refacciones/nuevo">Nueva refaccion</a>
+  </div>
+</section>
+
+<form method="get" action="/refacciones" class="card form filters-form" id="filtros-refacciones">
+  <label class="span-2">
+    Buscar
+    <input type="search" name="q" value="<%= filtros.q %>" placeholder="Nombre, numero o categoria" autocomplete="off" data-auto-submit>
+  </label>
+  <label>
+    Categoria
+    <select name="categoria" data-auto-submit>
+      <option value="">Todas</option>
+      <% categorias.forEach(categoria => { %>
+        <option value="<%= categoria %>" <%= filtros.categoria === categoria ? 'selected' : '' %>><%= categoria %></option>
+      <% }) %>
+    </select>
+  </label>
+  <label>
+    Stock
+    <select name="stock" data-auto-submit>
+      <option value="" <%= filtros.stock === '' ? 'selected' : '' %>>Todo</option>
+      <option value="bajo" <%= filtros.stock === 'bajo' ? 'selected' : '' %>>Stock bajo (10 o menos)</option>
+    </select>
+  </label>
+  <label>
+    Orden
+    <select name="orden" data-auto-submit>
+      <option value="" <%= filtros.orden === '' ? 'selected' : '' %>>Nombre A-Z</option>
+      <option value="precio_desc" <%= filtros.orden === 'precio_desc' ? 'selected' : '' %>>Precio mayor a menor</option>
+    </select>
+  </label>
+  <div class="filter-actions">
+    <a href="/refacciones" class="ghost-button">Limpiar</a>
+  </div>
+</form>
+
+<section class="stats-grid">
+  <article class="metric-card">
+    <span>Total piezas</span>
+    <strong><%= refacciones.length %></strong>
+  </article>
+  <article class="metric-card">
+    <span>Stock acumulado</span>
+    <strong><%= refacciones.reduce((total, item) => total + item.stock, 0) %></strong>
+  </article>
+  <article class="metric-card">
+    <span>Valor inventario</span>
+    <strong>$<%= formatoMoneda(refacciones.reduce((total, item) => total + (item.precio * item.stock), 0)) %></strong>
+  </article>
+</section>
+
+<section class="card table-card">
+  <% if (refacciones.length === 0) { %>
+    <p class="muted padded">Todavia no hay refacciones cargadas.</p>
+  <% } else { %>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Numero de pieza</th>
+            <th>Categoria</th>
+            <th>Precio</th>
+            <th>Stock</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% refacciones.forEach(refaccion => { %>
+            <tr>
+              <td><strong><%= refaccion.nombre %></strong></td>
+              <td><%= refaccion.numeroPieza %></td>
+              <td><%= refaccion.categoria %></td>
+              <td>$<%= formatoMoneda(refaccion.precio) %></td>
+              <td><span class="stock-pill <%= refaccion.stock <= 10 ? 'low-stock' : '' %>"><%= refaccion.stock %></span></td>
+              <td class="actions">
+                <a href="/refacciones/<%= refaccion._id %>/editar">Administrar</a>
+                <form method="post" action="/refacciones/<%= refaccion._id %>/eliminar" class="form-eliminar">
+                  <button class="danger" type="submit">Eliminar</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>
+
+<script>
+  const filtrosForm = document.getElementById('filtros-refacciones');
+  let filtroTimer;
+
+  filtrosForm.querySelectorAll('[data-auto-submit]').forEach(control => {
+    const eventName = control.tagName === 'SELECT' ? 'change' : 'input';
+    control.addEventListener(eventName, () => {
+      clearTimeout(filtroTimer);
+      filtroTimer = setTimeout(() => filtrosForm.requestSubmit(), control.tagName === 'SELECT' ? 0 : 350);
+    });
+  });
+</script>

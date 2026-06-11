@@ -1,0 +1,91 @@
+<section class="page-title">
+  <div>
+    <p class="eyebrow">Ordenes de trabajo</p>
+    <h1>Administracion de ordenes</h1>
+  </div>
+  <a class="button" href="/servicios/nuevo">Nueva orden</a>
+</section>
+
+<form method="get" action="/servicios" class="card form filters-form">
+  <label>
+    Tipo de servicio
+    <select name="tipo">
+      <option value="">Todos</option>
+      <% tiposServicios.forEach(tipoServicio => { %>
+        <option value="<%= tipoServicio.nombre %>" <%= filtros.tipo === tipoServicio.nombre ? 'selected' : '' %>><%= tipoServicio.nombre %></option>
+      <% }) %>
+    </select>
+  </label>
+  <label>
+    Fecha
+    <input type="date" name="fecha" value="<%= filtros.fecha || '' %>">
+  </label>
+  <label>
+    Costo minimo
+    <input type="number" name="costoMin" value="<%= filtros.costoMin || '' %>" min="0" step="0.01">
+  </label>
+  <label>
+    Costo maximo
+    <input type="number" name="costoMax" value="<%= filtros.costoMax || '' %>" min="0" step="0.01">
+  </label>
+  <label>
+    Estado
+    <select name="estado">
+      <option value="">Todos</option>
+      <% estados.forEach(estado => { %>
+        <option value="<%= estado %>" <%= filtros.estado === estado ? 'selected' : '' %>><%= estado %></option>
+      <% }) %>
+    </select>
+  </label>
+  <div class="filter-actions">
+    <a href="/servicios">Limpiar</a>
+    <button type="submit">Filtrar</button>
+  </div>
+</form>
+
+<section class="card table-card">
+  <% if (servicios.length === 0) { %>
+    <p class="muted">Todavia no hay servicios cargados.</p>
+  <% } else { %>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Vehiculo</th>
+            <th>Mecanico</th>
+            <th>Tipo</th>
+            <th>Estado</th>
+            <th>Entrega</th>
+            <th>Costo</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% servicios.forEach(servicio => { %>
+            <tr>
+              <td><%= servicio.fecha.toISOString().slice(0, 10) %></td>
+              <td>
+                <% if (servicio.vehiculo) { %>
+                  <strong><%= servicio.vehiculo.placa %></strong> - <%= servicio.vehiculo.marca %> <%= servicio.vehiculo.modelo %>
+                <% } else { %>
+                  <span class="muted">Vehiculo eliminado</span>
+                <% } %>
+              </td>
+              <td><%= servicio.mecanico ? servicio.mecanico.nombreCompleto : 'Sin mecanico' %></td>
+              <td><%= servicio.tipos && servicio.tipos.length > 1 ? 'Servicios varios' : servicio.tipo %></td>
+              <td><span class="status"><%= servicio.estado %></span></td>
+              <td><%= servicio.prorrogaFecha ? fechaInput(servicio.prorrogaFecha) : fechaInput(servicio.fechaEntrega) %></td>
+              <td>$<%= formatoMoneda(servicio.costo) %></td>
+              <td class="actions">
+                <a href="/servicios/<%= servicio._id %>/detalle">Ver detalle</a>
+                <a href="/servicios/<%= servicio._id %>/editar">Editar</a>
+                <a href="/servicios/<%= servicio._id %>/pdf">Exportar PDF</a>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>

@@ -1,0 +1,18 @@
+<form method="post" action="<%= accion %>" class="card form grid-form">
+  <label>
+    Nombre del servicio
+    <input type="text" name="nombre" value="<%= tipoServicio.nombre || '' %>" placeholder="Alineacion" required>
+  </label>
+  <label class="check-line">
+    <input type="checkbox" name="activo" <%= tipoServicio.activo === false ? '' : 'checked' %>>
+    Servicio activo
+  </label>
+  <label class="span-2">
+    Descripcion
+    <textarea name="descripcion" rows="4" required><%= tipoServicio.descripcion || '' %></textarea>
+  </label>
+  <div class="form-actions span-2">
+    <a href="/catalogo-servicios">Cancelar</a>
+    <button type="submit"><%= boton %></button>
+  </div>
+</form>

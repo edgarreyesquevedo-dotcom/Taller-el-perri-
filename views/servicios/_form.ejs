@@ -1,0 +1,137 @@
+<form method="post" action="<%= accion %>" class="card form grid-form">
+  <label>
+    Vehiculo
+    <select name="vehiculo" required>
+      <option value="">Selecciona un vehiculo</option>
+      <% vehiculos.forEach(vehiculo => { %>
+        <option value="<%= vehiculo._id %>" <%= String(servicio.vehiculo || '') === String(vehiculo._id) ? 'selected' : '' %>>
+          <%= vehiculo.placa %> - <%= vehiculo.marca %> <%= vehiculo.modelo %>
+        </option>
+      <% }) %>
+    </select>
+  </label>
+  <label>
+    Mecanico asignado
+    <select name="mecanico" required>
+      <option value="">Selecciona un mecanico</option>
+      <% mecanicos.forEach(mecanico => { %>
+        <option value="<%= mecanico._id %>" <%= String(servicio.mecanico || '') === String(mecanico._id) ? 'selected' : '' %>>
+          <%= mecanico.nombreCompleto %>
+        </option>
+      <% }) %>
+    </select>
+  </label>
+  <fieldset class="services-field span-2">
+    <legend>Servicios de la orden</legend>
+    <%
+      const serviciosSeleccionados = Array.isArray(servicio.tipos)
+        ? servicio.tipos
+        : servicio.tipos
+          ? [servicio.tipos]
+          : servicio.tipo
+            ? [servicio.tipo]
+            : [];
+    %>
+    <div class="service-options">
+      <% tiposServicios.forEach(tipoServicio => { %>
+        <label class="service-option">
+          <input type="checkbox" name="tipos" value="<%= tipoServicio.nombre %>" <%= serviciosSeleccionados.includes(tipoServicio.nombre) ? 'checked' : '' %>>
+          <span>
+            <strong><%= tipoServicio.nombre %></strong>
+            <small><%= tipoServicio.descripcion %> · $<%= formatoMoneda(costoServicio) %></small>
+          </span>
+        </label>
+      <% }) %>
+    </div>
+  </fieldset>
+  <label class="span-2">
+    Descripcion
+    <textarea name="descripcion" rows="4" required><%= servicio.descripcion || '' %></textarea>
+  </label>
+  <div class="price-summary">
+    <span>Precio calculado</span>
+    <strong id="total-orden">$<%= formatoMoneda(servicio.costo || 0) %></strong>
+    <small>Servicios ($<%= formatoMoneda(costoServicio) %> c/u) + refacciones</small>
+  </div>
+  <label>
+    Estado
+    <select name="estado">
+      <% estados.forEach(estado => { %>
+        <option value="<%= estado %>" <%= (servicio.estado || 'Pendiente') === estado ? 'selected' : '' %>><%= estado %></option>
+      <% }) %>
+    </select>
+  </label>
+  <label>
+    Fecha
+    <input type="date" name="fecha" value="<%= fechaInput(servicio.fecha) %>" required>
+  </label>
+  <label>
+    Fecha maxima de entrega
+    <input type="date" value="<%= fechaInput(servicio.fechaEntrega || new Date(new Date(servicio.fecha || Date.now()).getTime() + 86400000)) %>" readonly>
+  </label>
+  <% if (esEdicion) { %>
+    <label>
+      Prorroga extraordinaria
+      <input type="date" name="prorrogaFecha" value="<%= servicio.prorrogaFecha ? fechaInput(servicio.prorrogaFecha) : '' %>">
+    </label>
+    <label class="span-2">
+      Motivo de prorroga
+      <textarea name="prorrogaMotivo" rows="3"><%= servicio.prorrogaMotivo || '' %></textarea>
+    </label>
+  <% } %>
+  <fieldset class="parts-field span-2">
+    <legend>Refacciones utilizadas</legend>
+    <% if (refacciones.length === 0) { %>
+      <p class="muted">No hay refacciones registradas en el catalogo.</p>
+    <% } else { %>
+      <div class="parts-grid">
+        <% refacciones.forEach(refaccion => { %>
+          <%
+            const usadas = servicio.refacciones || [];
+            const uso = usadas.find(item => String(item.refaccion && item.refaccion._id ? item.refaccion._id : item.refaccion) === String(refaccion._id));
+          %>
+          <label class="part-option">
+            <span>
+              <input type="checkbox" name="refacciones" value="<%= refaccion._id %>" <%= uso ? 'checked' : '' %>>
+              <strong><%= refaccion.nombre %></strong>
+              <small><%= refaccion.numeroPieza %> · Stock: <%= refaccion.stock %> · $<%= formatoMoneda(refaccion.precio) %></small>
+            </span>
+            <input type="number" name="cantidad_<%= refaccion._id %>" min="1" value="<%= uso ? uso.cantidad : 1 %>" data-price="<%= refaccion.precio %>" aria-label="Cantidad de <%= refaccion.nombre %>">
+          </label>
+        <% }) %>
+      </div>
+    <% } %>
+  </fieldset>
+  <div class="form-actions span-2">
+    <a href="/servicios">Cancelar</a>
+    <button type="submit"><%= boton %></button>
+  </div>
+</form>
+
+<script>
+  function formatoMonedaCliente(value) {
+    return Number(value || 0).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function actualizarTotalOrden() {
+    const totalRefacciones = [...document.querySelectorAll('.part-option')].reduce((sum, option) => {
+      const checkbox = option.querySelector('input[type="checkbox"]');
+      const cantidad = option.querySelector('input[type="number"]');
+      if (!checkbox.checked) return sum;
+      return sum + (Number(cantidad.dataset.price || 0) * Number(cantidad.value || 1));
+    }, 0);
+    const totalServicios = document.querySelectorAll('.service-option input[type="checkbox"]:checked').length * <%= costoServicio %>;
+
+    document.getElementById('total-orden').textContent = `$${formatoMonedaCliente(totalRefacciones + totalServicios)}`;
+  }
+
+  document.querySelectorAll('.part-option input').forEach(input => {
+    input.addEventListener('change', actualizarTotalOrden);
+    input.addEventListener('input', actualizarTotalOrden);
+  });
+  document.querySelectorAll('.service-option input').forEach(input => {
+    input.addEventListener('change', actualizarTotalOrden);
+  });
+
+  actualizarTotalOrden();
+</script>

@@ -1,0 +1,97 @@
+<section class="page-title">
+  <div>
+    <p class="eyebrow">Orden de trabajo</p>
+    <h1>Detalle de servicio</h1>
+  </div>
+  <a class="button" href="/servicios/<%= servicio._id %>/editar">Editar orden</a>
+</section>
+
+<section class="detail-grid">
+  <article class="card detail-card accent-card">
+    <p class="eyebrow">Trabajo</p>
+    <h2><%= servicio.tipos && servicio.tipos.length > 1 ? 'Servicios varios' : servicio.tipo %></h2>
+    <% if (servicio.tipos && servicio.tipos.length > 0) { %>
+      <ul class="service-list">
+        <% servicio.tipos.forEach(tipo => { %>
+          <li><%= tipo %></li>
+        <% }) %>
+      </ul>
+    <% } %>
+    <p><%= servicio.descripcion %></p>
+    <dl>
+      <div><dt>Estado</dt><dd><span class="status"><%= servicio.estado %></span></dd></div>
+      <div><dt>Fecha</dt><dd><%= servicio.fecha.toISOString().slice(0, 10) %></dd></div>
+      <div><dt>Fecha maxima entrega</dt><dd><%= fechaInput(servicio.fechaEntrega) %></dd></div>
+      <% if (servicio.prorrogaFecha) { %>
+        <div><dt>Prorroga</dt><dd><%= fechaInput(servicio.prorrogaFecha) %></dd></div>
+        <div><dt>Motivo prorroga</dt><dd><%= servicio.prorrogaMotivo || 'Sin motivo capturado' %></dd></div>
+      <% } %>
+      <%
+        const subtotalRefacciones = servicio.refacciones.reduce((total, item) => total + (item.refaccion ? item.refaccion.precio * item.cantidad : 0), 0);
+        const subtotalServicios = (servicio.tipos && servicio.tipos.length ? servicio.tipos.length : 1) * 150;
+      %>
+      <div><dt>Servicios</dt><dd>$<%= formatoMoneda(subtotalServicios) %></dd></div>
+      <div><dt>Subtotal refacciones</dt><dd>$<%= formatoMoneda(subtotalRefacciones) %></dd></div>
+      <div><dt>Total orden</dt><dd>$<%= formatoMoneda(servicio.costo) %></dd></div>
+    </dl>
+  </article>
+
+  <article class="card detail-card">
+    <p class="eyebrow">Auto</p>
+    <% if (servicio.vehiculo) { %>
+      <h2><%= servicio.vehiculo.placa %></h2>
+      <dl>
+        <div><dt>Marca</dt><dd><%= servicio.vehiculo.marca %></dd></div>
+        <div><dt>Modelo</dt><dd><%= servicio.vehiculo.modelo %></dd></div>
+        <div><dt>Anio</dt><dd><%= servicio.vehiculo.anio %></dd></div>
+        <div><dt>Propietario</dt><dd><%= servicio.vehiculo.propietario %></dd></div>
+        <div><dt>Telefono</dt><dd><%= servicio.vehiculo.telefono %></dd></div>
+      </dl>
+    <% } else { %>
+      <p class="muted">El vehiculo fue eliminado.</p>
+    <% } %>
+  </article>
+
+  <article class="card detail-card">
+    <p class="eyebrow">Mecanico</p>
+    <% if (servicio.mecanico) { %>
+      <h2><%= servicio.mecanico.nombreCompleto %></h2>
+      <dl>
+        <div><dt>ID</dt><dd><%= servicio.mecanico.empleadoId %></dd></div>
+        <div><dt>Telefono</dt><dd><%= servicio.mecanico.telefono %></dd></div>
+        <div><dt>Email</dt><dd><%= servicio.mecanico.email %></dd></div>
+        <div><dt>Activo</dt><dd><%= servicio.mecanico.activo ? 'Si' : 'No' %></dd></div>
+      </dl>
+    <% } else { %>
+      <p class="muted">No hay mecanico asignado.</p>
+    <% } %>
+  </article>
+
+  <article class="card detail-card span-wide">
+    <p class="eyebrow">Refacciones</p>
+    <% if (!servicio.refacciones || servicio.refacciones.length === 0) { %>
+      <p class="muted">Esta orden no tiene refacciones registradas.</p>
+    <% } else { %>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Refaccion</th><th>Numero de pieza</th><th>Cantidad</th><th>Precio unitario</th><th>Subtotal</th></tr>
+          </thead>
+          <tbody>
+            <% servicio.refacciones.forEach(item => { %>
+              <% if (item.refaccion) { %>
+                <tr>
+                  <td><%= item.refaccion.nombre %></td>
+                  <td><%= item.refaccion.numeroPieza %></td>
+                  <td><%= item.cantidad %></td>
+                  <td>$<%= formatoMoneda(item.refaccion.precio) %></td>
+                  <td>$<%= formatoMoneda(item.refaccion.precio * item.cantidad) %></td>
+                </tr>
+              <% } %>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </article>
+</section>

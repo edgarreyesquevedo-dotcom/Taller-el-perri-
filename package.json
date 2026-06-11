@@ -1,0 +1,26 @@
+{
+  "name": "tallerdb",
+  "version": "1.0.0",
+  "description": "Aplicacion web para gestionar vehiculos y servicios de un taller mecanico con MongoDB 7.",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "seed": "node seed.js"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "connect-mongo": "^5.1.0",
+    "dotenv": "^16.4.7",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "express-ejs-layouts": "^2.5.1",
+    "express-session": "^1.18.1",
+    "mongoose": "^8.9.5",
+    "multer": "^2.1.1",
+    "pdfkit": "^0.19.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}
