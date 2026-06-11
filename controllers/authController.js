@@ -20,6 +20,7 @@ async function iniciarSesion(req, res) {
     authService.crearSesion(req, usuario);
     return res.redirect('/vehiculos');
   } catch (error) {
+    console.error('Error al iniciar sesion:', error);
     return res.status(500).render('auth/login', {
       titulo: 'Iniciar sesion',
       error: 'No se pudo iniciar sesion'
@@ -37,7 +38,14 @@ async function registrar(req, res) {
     await authService.registrarUsuario(req.body);
     return res.redirect('/login');
   } catch (error) {
-    const mensaje = error.code === 11000 ? 'El email ya esta registrado' : 'No se pudo crear la cuenta';
+    console.error('Error al crear cuenta:', error);
+
+    let mensaje = 'No se pudo crear la cuenta';
+    if (error.code === 11000) mensaje = 'El email ya esta registrado';
+    if (error.name === 'ValidationError') {
+      mensaje = Object.values(error.errors).map(({ message }) => message).join('. ');
+    }
+
     return res.status(400).render('auth/registro', { titulo: 'Crear cuenta', error: mensaje });
   }
 }
