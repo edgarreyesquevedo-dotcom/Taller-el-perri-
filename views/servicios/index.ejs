@@ -9,7 +9,7 @@
 <form method="get" action="/servicios" class="card form filters-form">
   <label>
     Tipo de servicio
-    <select name="tipo">
+    <select name="tipo" onchange="this.form.submit()">
       <option value="">Todos</option>
       <% tiposServicios.forEach(tipoServicio => { %>
         <option value="<%= tipoServicio.nombre %>" <%= filtros.tipo === tipoServicio.nombre ? 'selected' : '' %>><%= tipoServicio.nombre %></option>
@@ -18,19 +18,21 @@
   </label>
   <label>
     Fecha
-    <input type="date" name="fecha" value="<%= filtros.fecha || '' %>">
+    <select name="fecha" onchange="this.form.submit()">
+      <option value="recientes" <%= filtros.fecha !== 'antiguos' ? 'selected' : '' %>>Más recientes</option>
+      <option value="antiguos" <%= filtros.fecha === 'antiguos' ? 'selected' : '' %>>Más antiguos</option>
+    </select>
   </label>
   <label>
-    Costo minimo
-    <input type="number" name="costoMin" value="<%= filtros.costoMin || '' %>" min="0" step="0.01">
-  </label>
-  <label>
-    Costo maximo
-    <input type="number" name="costoMax" value="<%= filtros.costoMax || '' %>" min="0" step="0.01">
+    Precio
+    <select name="precio" onchange="this.form.submit()">
+      <option value="mayor" <%= filtros.precio !== 'menor' ? 'selected' : '' %>>Mayor</option>
+      <option value="menor" <%= filtros.precio === 'menor' ? 'selected' : '' %>>Menor</option>
+    </select>
   </label>
   <label>
     Estado
-    <select name="estado">
+    <select name="estado" onchange="this.form.submit()">
       <option value="">Todos</option>
       <% estados.forEach(estado => { %>
         <option value="<%= estado %>" <%= filtros.estado === estado ? 'selected' : '' %>><%= estado %></option>
@@ -39,7 +41,6 @@
   </label>
   <div class="filter-actions">
     <a href="/servicios">Limpiar</a>
-    <button type="submit">Filtrar</button>
   </div>
 </form>
 

@@ -11,7 +11,7 @@ function mostrarNuevo(req, res) {
 
 async function crear(req, res) {
   try {
-    await empleadosService.crear(req.body);
+    await empleadosService.crear(req.body, req.file);
     res.redirect('/empleados');
   } catch (error) {
     const mensaje = error.code === 11000 ? 'El email del empleado ya existe' : 'Revisa los datos del empleado';
@@ -27,7 +27,7 @@ async function mostrarEditar(req, res) {
 
 async function actualizar(req, res) {
   try {
-    await empleadosService.actualizar(req.params.id, req.body);
+    await empleadosService.actualizar(req.params.id, req.body, req.file);
     res.redirect('/empleados');
   } catch (error) {
     const empleado = { ...req.body, _id: req.params.id, activo: req.body.activo === 'on', creadoEn: new Date() };

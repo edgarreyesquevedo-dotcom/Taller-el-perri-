@@ -20,9 +20,9 @@ const vehiculoSchema = new mongoose.Schema({
   },
   anio: {
     type: Number,
-    required: [true, 'El anio es obligatorio'],
-    min: [1900, 'El anio debe ser mayor o igual a 1900'],
-    max: [new Date().getFullYear(), 'El anio no puede ser mayor al actual']
+    required: [true, 'El año es obligatorio'],
+    min: [1900, 'El año debe ser mayor o igual a 1900'],
+    max: [new Date().getFullYear(), 'El año no puede ser mayor al actual']
   },
   propietario: {
     type: String,
@@ -36,6 +36,10 @@ const vehiculoSchema = new mongoose.Schema({
     trim: true
   },
   imagenes: [{
+    type: String,
+    trim: true
+  }],
+  imagenesPublicIds: [{
     type: String,
     trim: true
   }],

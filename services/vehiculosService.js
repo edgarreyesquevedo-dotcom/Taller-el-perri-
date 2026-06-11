@@ -1,10 +1,13 @@
 const Vehiculo = require('../models/Vehiculo');
 const Servicio = require('../models/Servicio');
-const { rutasImagenes } = require('../utils/uploads');
+const { rutasImagenes, publicIdsImagenes } = require('../utils/uploads');
 
-async function listarVisibles() {
+async function listarVisibles(query = {}) {
+  const filtro = {};
+  if (query.marca) filtro.marca = query.marca;
+
   const [vehiculos, servicios] = await Promise.all([
-    Vehiculo.find().sort({ creadoEn: -1 }),
+    Vehiculo.find(filtro).sort({ creadoEn: -1 }),
     Servicio.find().select('vehiculo estado')
   ]);
 
@@ -15,8 +18,12 @@ async function listarVisibles() {
   });
 }
 
+function listarMarcas() {
+  return Vehiculo.distinct('marca');
+}
+
 function crear(datos, files) {
-  return Vehiculo.create({ ...datos, imagenes: rutasImagenes(files) });
+  return Vehiculo.create({ ...datos, imagenes: rutasImagenes(files), imagenesPublicIds: publicIdsImagenes(files) });
 }
 
 function buscarPorId(id) {
@@ -26,7 +33,8 @@ function buscarPorId(id) {
 async function actualizar(id, datos, files) {
   const vehiculo = await Vehiculo.findById(id);
   const imagenes = [...(vehiculo ? vehiculo.imagenes : []), ...rutasImagenes(files)];
-  return Vehiculo.findByIdAndUpdate(id, { ...datos, imagenes }, { runValidators: true });
+  const imagenesPublicIds = [...(vehiculo ? vehiculo.imagenesPublicIds || [] : []), ...publicIdsImagenes(files)];
+  return Vehiculo.findByIdAndUpdate(id, { ...datos, imagenes, imagenesPublicIds }, { runValidators: true });
 }
 
 async function eliminar(id) {
@@ -38,4 +46,4 @@ async function eliminar(id) {
   return Vehiculo.findByIdAndDelete(id);
 }
 
-module.exports = { listarVisibles, crear, buscarPorId, actualizar, eliminar };
+module.exports = { listarVisibles, listarMarcas, crear, buscarPorId, actualizar, eliminar };

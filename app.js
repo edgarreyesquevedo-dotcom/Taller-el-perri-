@@ -20,27 +20,47 @@ const { ejecutarNominaAutomaticaSabatina } = require('./services/contabilidad');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const isVercel = process.env.VERCEL === '1';
 
 // Evita fallos de resolucion SRV de Atlas cuando el DNS local no responde bien.
 dns.setServers(['8.8.8.8', '1.1.1.1']);
 
 if (!process.env.MONGODB_URI) {
-  throw new Error('Falta configurar MONGODB_URI en el archivo .env');
+  throw new Error('Falta configurar MONGODB_URI en el entorno');
 }
 
-mongoose
-  .connect(process.env.MONGODB_URI)
-  .then(async () => {
-    console.log('MongoDB conectado');
-    await ejecutarNominaAutomaticaSabatina();
-  })
-  .catch(error => {
-    console.error('Error al conectar con MongoDB:', error.message);
-    process.exit(1);
-  });
+const globalState = global;
+
+function conectarMongo() {
+  if (mongoose.connection.readyState === 1) return Promise.resolve();
+
+  if (!globalState.tallerDbMongoPromise) {
+    globalState.tallerDbMongoPromise = mongoose
+      .connect(process.env.MONGODB_URI)
+      .then(async () => {
+        console.log('MongoDB conectado');
+        if (!globalState.tallerDbNominaEjecutada) {
+          globalState.tallerDbNominaEjecutada = true;
+          await ejecutarNominaAutomaticaSabatina();
+        }
+      })
+      .catch(error => {
+        globalState.tallerDbMongoPromise = null;
+        console.error('Error al conectar con MongoDB:', error.message);
+        throw error;
+      });
+  }
+
+  return globalState.tallerDbMongoPromise;
+}
+
+conectarMongo().catch(() => {
+  if (!isVercel && require.main === module) process.exit(1);
+});
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+if (process.env.NODE_ENV === 'production') app.set('trust proxy', 1);
 app.use(expressLayouts);
 app.set('layout', 'layout/base');
 
@@ -95,6 +115,10 @@ app.use((req, res) => {
   res.status(404).render('error', { titulo: 'Pagina no encontrada', mensaje: 'La ruta solicitada no existe.' });
 });
 
-app.listen(PORT, () => {
-  console.log(`TallerDB corriendo en http://localhost:${PORT}`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`TallerDB corriendo en http://localhost:${PORT}`);
+  });
+}
+
+module.exports = app;

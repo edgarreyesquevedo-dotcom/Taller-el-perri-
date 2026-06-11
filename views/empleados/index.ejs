@@ -30,6 +30,7 @@
         <thead>
           <tr>
             <th>ID</th>
+            <th>Foto</th>
             <th>Nombre</th>
             <th>Puesto</th>
             <th>Contacto</th>
@@ -43,11 +44,18 @@
           <% empleados.forEach(empleado => { %>
             <tr class="<%= empleado.activo ? '' : 'inactive-row' %>">
               <td><strong><%= empleado.empleadoId %></strong></td>
-              <td><%= empleado.nombreCompleto %><br><small>RFC: <%= empleado.rfc %> · CURP: <%= empleado.curp %></small></td>
+              <td>
+                <% if (empleado.foto) { %>
+                  <img class="employee-photo-thumb" src="<%= empleado.foto %>" alt="Foto de <%= empleado.nombreCompleto %>">
+                <% } else { %>
+                  <span class="muted">Sin foto</span>
+                <% } %>
+              </td>
+              <td><%= empleado.nombreCompleto %><br><small>RFC: <%= empleado.rfc %> · CURP: <%= empleado.curp %></small><% if (empleado.direccion) { %><br><small><%= empleado.direccion %></small><% } %></td>
               <td><%= empleado.puesto %></td>
               <td><%= empleado.telefono %><br><small><%= empleado.email %></small></td>
               <td>$<%= formatoMoneda(empleado.nominaBase) %></td>
-              <td><%= empleado.antiguedad %> anos</td>
+              <td><%= empleado.antiguedad %> años</td>
               <td><span class="status <%= empleado.activo ? '' : 'status-off' %>"><%= empleado.activo ? 'Activo' : 'Inactivo' %></span></td>
               <td class="actions">
                 <a href="/empleados/<%= empleado._id %>/editar">Editar</a>

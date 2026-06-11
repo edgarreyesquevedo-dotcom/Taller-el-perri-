@@ -49,6 +49,18 @@ const empleadoSchema = new mongoose.Schema({
     lowercase: true,
     trim: true
   },
+  direccion: {
+    type: String,
+    trim: true
+  },
+  foto: {
+    type: String,
+    trim: true
+  },
+  fotoPublicId: {
+    type: String,
+    trim: true
+  },
   puesto: {
     type: String,
     enum: puestos,

@@ -10,6 +10,21 @@
   <div class="alert error"><%= error %></div>
 <% } %>
 
+<form method="get" action="/vehiculos" class="card form filters-form">
+  <label>
+    Marca
+    <select name="marca" onchange="this.form.submit()">
+      <option value="">Todas</option>
+      <% marcas.forEach(marca => { %>
+        <option value="<%= marca %>" <%= filtros.marca === marca ? 'selected' : '' %>><%= marca %></option>
+      <% }) %>
+    </select>
+  </label>
+  <div class="filter-actions">
+    <a href="/vehiculos">Limpiar</a>
+  </div>
+</form>
+
 <section class="card table-card">
   <% if (vehiculos.length === 0) { %>
     <p class="muted">Todavia no hay vehiculos cargados.</p>

@@ -1,8 +1,11 @@
 const vehiculosService = require('../services/vehiculosService');
 
 async function listar(req, res) {
-  const vehiculos = await vehiculosService.listarVisibles();
-  res.render('vehiculos/index', { titulo: 'Vehiculos', vehiculos, error: req.query.error });
+  const [vehiculos, marcas] = await Promise.all([
+    vehiculosService.listarVisibles(req.query),
+    vehiculosService.listarMarcas()
+  ]);
+  res.render('vehiculos/index', { titulo: 'Vehiculos', vehiculos, marcas: marcas.sort(), filtros: req.query, error: req.query.error });
 }
 
 function mostrarNuevo(req, res) {

@@ -19,12 +19,13 @@ function cargarCatalogos() {
 
 async function listar(query) {
   const filtro = construirFiltro(query);
+  const orden = construirOrden(query);
   const [, , , tiposServicios] = await cargarCatalogos();
   const servicios = await Servicio.find(filtro)
     .populate('vehiculo')
     .populate('mecanico')
     .populate('refacciones.refaccion')
-    .sort({ fecha: -1 });
+    .sort(orden);
 
   return { servicios, tiposServicios };
 }
@@ -120,18 +121,14 @@ function construirFiltro(query) {
   } else {
     filtro.estado = { $ne: 'Terminado' };
   }
-  if (query.fecha) {
-    const inicio = new Date(`${query.fecha}T00:00:00`);
-    const fin = new Date(`${query.fecha}T23:59:59.999`);
-    filtro.fecha = { $gte: inicio, $lte: fin };
-  }
-  if (query.costoMin || query.costoMax) {
-    filtro.costo = {};
-    if (query.costoMin) filtro.costo.$gte = Number(query.costoMin);
-    if (query.costoMax) filtro.costo.$lte = Number(query.costoMax);
-  }
 
   return filtro;
+}
+
+function construirOrden(query) {
+  const direccionFecha = query.fecha === 'antiguos' ? 1 : -1;
+  if (query.precio === 'menor') return { costo: 1, fecha: direccionFecha };
+  return { costo: -1, fecha: direccionFecha };
 }
 
 async function registrarIngresoOrden(orden) {
