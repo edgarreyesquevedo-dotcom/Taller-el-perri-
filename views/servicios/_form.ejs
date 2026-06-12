@@ -53,14 +53,16 @@
     <strong id="total-orden">$<%= formatoMoneda(servicio.costo || 0) %></strong>
     <small>Servicios ($<%= formatoMoneda(costoServicio) %> c/u) + refacciones</small>
   </div>
-  <label>
-    Estado
-    <select name="estado">
-      <% estados.forEach(estado => { %>
-        <option value="<%= estado %>" <%= (servicio.estado || 'Pendiente') === estado ? 'selected' : '' %>><%= estado %></option>
-      <% }) %>
-    </select>
-  </label>
+  <% if (esEdicion) { %>
+    <label>
+      Estado
+      <select name="estado">
+        <% estados.forEach(estado => { %>
+          <option value="<%= estado %>" <%= (servicio.estado || 'Pendiente') === estado ? 'selected' : '' %>><%= estado %></option>
+        <% }) %>
+      </select>
+    </label>
+  <% } %>
   <label>
     Fecha
     <input type="date" name="fecha" value="<%= fechaInput(servicio.fecha) %>" required>

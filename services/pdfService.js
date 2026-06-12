@@ -13,7 +13,7 @@ function exportarOrdenServicio(servicio, res) {
   const subtotalRefacciones = servicio.refacciones.reduce((total, item) => total + (item.refaccion ? item.refaccion.precio * item.cantidad : 0), 0);
   const subtotalServicios = calcularSubtotalServicios(servicio.tipos && servicio.tipos.length ? servicio.tipos.length : 1);
 
-  doc.fontSize(22).text('TallerDB', { align: 'center' });
+  doc.fontSize(22).text('Taller el "perri"', { align: 'center' });
   doc.fontSize(10).text('RFC: TDB240101AB1 | Regimen fiscal: Personas Morales', { align: 'center' });
   doc.text('Direccion: Av. Principal 672, Col. Centro, Sinaloa, Mexico', { align: 'center' });
   doc.text('Telefono: 672-000-0000 | Email: facturacion@tallerdb.com', { align: 'center' });
@@ -56,7 +56,7 @@ function exportarOrdenServicio(servicio, res) {
   doc.text(`Refacciones: $${formatoMoneda(subtotalRefacciones)}`);
   doc.fontSize(14).text(`Total: $${formatoMoneda(servicio.costo)}`);
   doc.moveDown();
-  doc.fontSize(10).text('Este documento fue generado por TallerDB para control interno y entrega al cliente.');
+  doc.fontSize(10).text('Este documento fue generado por Taller el "perri" para control interno y entrega al cliente.');
 
   doc.end();
 }
@@ -68,7 +68,7 @@ function exportarReporteContable({ titulo, nombreArchivo, movimientos, total }, 
   res.setHeader('Content-Disposition', `attachment; filename="${nombreArchivo}"`);
   doc.pipe(res);
 
-  doc.fontSize(22).text('TallerDB', { align: 'center' });
+  doc.fontSize(22).text('Taller el "perri"', { align: 'center' });
   doc.fontSize(16).text(titulo, { align: 'center' });
   doc.moveDown();
   doc.fontSize(10).text(`Generado: ${formatoFecha(new Date())}`);

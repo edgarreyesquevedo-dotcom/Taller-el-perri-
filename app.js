@@ -138,7 +138,7 @@ app.use(errorHandler);
 
 if (require.main === module) {
   app.listen(PORT, () => {
-    console.log(`TallerDB corriendo en http://localhost:${PORT}`);
+    console.log(`Taller el "perri" corriendo en http://localhost:${PORT}`);
   });
 }
 
