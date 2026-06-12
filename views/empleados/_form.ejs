@@ -28,7 +28,7 @@
   </label>
   <label>
     Telefono
-    <input type="tel" name="telefono" value="<%= empleado.telefono || '' %>" pattern="672-\d{3}-\d{4}" placeholder="672-123-4567" required>
+    <input type="tel" name="telefono" value="<%= empleado.telefono || '' %>" pattern="(?:\D*\d){10}\D*" maxlength="12" placeholder="123-456-7890" data-phone required>
   </label>
   <label>
     Email
@@ -79,3 +79,12 @@
     <button type="submit"><%= boton %></button>
   </div>
 </form>
+
+<script>
+  document.querySelectorAll('[data-phone]').forEach(input => {
+    input.addEventListener('input', () => {
+      const digits = input.value.replace(/\D/g, '').slice(0, 10);
+      input.value = [digits.slice(0, 3), digits.slice(3, 6), digits.slice(6, 10)].filter(Boolean).join('-');
+    });
+  });
+</script>

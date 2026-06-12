@@ -96,7 +96,7 @@
               <strong><%= refaccion.nombre %></strong>
               <small><%= refaccion.numeroPieza %> · Stock: <%= refaccion.stock %> · $<%= formatoMoneda(refaccion.precio) %></small>
             </span>
-            <input type="number" name="cantidad_<%= refaccion._id %>" min="1" value="<%= uso ? uso.cantidad : 1 %>" data-price="<%= refaccion.precio %>" aria-label="Cantidad de <%= refaccion.nombre %>">
+            <input type="number" name="cantidad_<%= refaccion._id %>" min="1" max="<%= refaccion.stock %>" value="<%= uso ? uso.cantidad : 1 %>" data-price="<%= refaccion.precio %>" aria-label="Cantidad de <%= refaccion.nombre %>">
           </label>
         <% }) %>
       </div>

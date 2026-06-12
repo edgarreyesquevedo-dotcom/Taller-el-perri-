@@ -44,6 +44,7 @@ function buscarPorId(id) {
 async function crear(body) {
   const servicio = await prepararServicio(body, false, 'Pendiente');
   await Servicio.validate(servicio);
+  await validarStockDisponible(servicio.refacciones);
   await descontarStock(servicio.refacciones);
   return Servicio.create(servicio);
 }
@@ -55,6 +56,7 @@ async function actualizar(id, body) {
   const servicio = await prepararServicio(body, true);
   await Servicio.validate(servicio);
   const ajuste = calcularAjusteStock(anterior.refacciones, servicio.refacciones);
+  await validarStockDisponible(ajuste.consumir);
   await restaurarStock(ajuste.restaurar);
   await descontarStock(ajuste.consumir);
   const actualizada = await Servicio.findByIdAndUpdate(id, servicio, { runValidators: true, new: true });
@@ -75,6 +77,7 @@ async function prepararServicio(body, permiteProrroga, estadoForzado) {
   const refacciones = ids
     .map(id => ({ refaccion: id, cantidad: Number(body[`cantidad_${id}`] || 1) }))
     .filter(item => item.refaccion && item.cantidad > 0);
+
   const fecha = body.fecha ? new Date(body.fecha) : new Date();
   const fechaEntrega = new Date(fecha);
   fechaEntrega.setDate(fechaEntrega.getDate() + 1);
@@ -110,6 +113,26 @@ async function calcularCostoOrden(refacciones, cantidadServicios) {
   }, 0);
 
   return Number((subtotal + calcularSubtotalServicios(cantidadServicios)).toFixed(2));
+}
+
+async function validarStockDisponible(refacciones) {
+  if (refacciones.length === 0) return;
+
+  const piezas = await Refaccion.find({ _id: { $in: refacciones.map(item => item.refaccion) } });
+
+  refacciones.forEach(item => {
+    const pieza = piezas.find(refaccion => String(refaccion._id) === String(item.refaccion));
+    const stock = pieza ? pieza.stock : 0;
+    const nombre = pieza ? pieza.nombre : 'refaccion seleccionada';
+
+    if (!Number.isInteger(item.cantidad) || item.cantidad < 1) {
+      throw new Error(`La cantidad de ${nombre} debe ser un numero entero mayor a 0`);
+    }
+
+    if (item.cantidad > stock) {
+      throw new Error(`La cantidad de ${nombre} no puede ser mayor al stock disponible (${stock})`);
+    }
+  });
 }
 
 function construirFiltro(query) {

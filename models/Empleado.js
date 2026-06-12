@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { formatearTelefono, validarTelefono } = require('../utils/phone');
 
 const prefijosPuesto = {
   mecanico: 'MEC',
@@ -39,7 +40,8 @@ const empleadoSchema = new mongoose.Schema({
   telefono: {
     type: String,
     required: [true, 'El telefono es obligatorio'],
-    match: [/^672-\d{3}-\d{4}$/, 'El telefono debe tener el formato 672-xxx-xxxx'],
+    validate: [validarTelefono, 'El telefono debe tener 10 numeros'],
+    set: formatearTelefono,
     trim: true
   },
   email: {
