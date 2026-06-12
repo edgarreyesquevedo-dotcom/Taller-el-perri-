@@ -1,6 +1,6 @@
 # TallerDB - Taller Mecanico
 
-**Nombre:** [tu nombre]  
+**Nombre:** Edgar Gael Reyes Quevedo  
 **Tema:** Taller Mecanico  
 **Descripcion:** Aplicacion web para gestionar vehiculos y sus servicios en un taller mecanico. Permite registrar clientes/vehiculos, agendar servicios, y seguir el estado de cada trabajo.
 
@@ -11,7 +11,7 @@
   Se eligio referencia porque un vehiculo acumula multiples servicios con el tiempo; embeberlos haria crecer el documento sin limite y dificultaria consultas independientes.
 
 ## Version de MongoDB
-MongoDB 7.0.x (verificado en Atlas - captura en `/docs/atlas-version.png`)
+MongoDB 8.0.26 (verificado en Atlas - captura en `/docs/atlas-version.png`)
 
 ## Correr el seed
 npm run seed
