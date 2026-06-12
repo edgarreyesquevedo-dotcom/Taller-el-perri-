@@ -18,10 +18,12 @@ function crearUploadImagen(destination, cloudinaryFolder) {
   const storage = cloudinaryConfigurado
     ? new CloudinaryStorage({
       cloudinary,
-      params: {
+      params: (req, file) => ({
         folder: cloudinaryFolder,
-        allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'gif']
-      }
+        public_id: crearPublicId(file),
+        allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'gif'],
+        resource_type: 'image'
+      })
     })
     : multer.diskStorage({
       destination,
@@ -56,24 +58,49 @@ const uploadVehiculos = crearUploadImagen(uploadDir, 'tallerdb/vehiculos');
 const uploadEmpleados = crearUploadImagen(empleadosUploadDir, 'tallerdb/empleados');
 
 function rutasImagenes(files = []) {
-  return files.map(file => (esArchivoCloudinary(file) ? file.path : `/uploads/vehiculos/${file.filename}`));
+  return files.map(file => urlArchivo(file, 'vehiculos')).filter(Boolean);
 }
 
 function publicIdsImagenes(files = []) {
-  return files.map(file => (esArchivoCloudinary(file) ? file.filename : undefined)).filter(Boolean);
+  return files.map(publicIdArchivo).filter(Boolean);
 }
 
 function rutaFotoEmpleado(file) {
   if (!file) return undefined;
-  return esArchivoCloudinary(file) ? file.path : `/uploads/empleados/${file.filename}`;
+  return urlArchivo(file, 'empleados');
 }
 
 function publicIdFotoEmpleado(file) {
-  return esArchivoCloudinary(file) && file.filename ? file.filename : undefined;
+  return publicIdArchivo(file);
 }
 
-function esArchivoCloudinary(file) {
-  return Boolean(file && typeof file.path === 'string' && /^https?:\/\//.test(file.path));
+function urlArchivo(file, carpetaLocal) {
+  if (!file) return undefined;
+
+  const cloudinaryUrl = [file.secure_url, file.path, file.url]
+    .find(value => typeof value === 'string' && /^https?:\/\//.test(value));
+
+  if (cloudinaryUrl) return cloudinaryUrl;
+  if (file.filename) return `/uploads/${carpetaLocal}/${file.filename}`;
+  return undefined;
+}
+
+function publicIdArchivo(file) {
+  if (!file) return undefined;
+  if (typeof file.public_id === 'string') return file.public_id;
+  if (typeof file.filename === 'string' && !path.extname(file.filename)) return file.filename;
+  return undefined;
+}
+
+function crearPublicId(file) {
+  const base = path.basename(file.originalname, path.extname(file.originalname))
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-zA-Z0-9_-]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .toLowerCase() || 'imagen';
+
+  return `${Date.now()}-${Math.round(Math.random() * 1e9)}-${base}`;
 }
 
 module.exports = {
